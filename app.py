@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request
 from transformers import pipeline
-import google.generativeai as genai
 from config import GEMINI_API_KEY
+from google import genai
 import textwrap
 
-# Configure Gemini API
-genai.configure(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY)
+
+
 
 app = Flask(__name__)
 
@@ -80,16 +81,16 @@ def answer_question():
 # **Study Plan Generator Page**
 def generate_study_plan(syllabus, topics, start_date, deadline):
     prompt = f"""
-    Create a structured study plan:
-    - **Syllabus:** {syllabus}
-    - **Topics:** {topics}
-    - **Start Date:** {start_date}
-    - **Deadline:** {deadline}
-    - Weekly & Daily task breakdown.
+    Create a study plan from {start_date} to {deadline}.
+    Syllabus: {syllabus}
+    Topics: {topics}
     """
 
-    model = genai.GenerativeModel("gemini-pro")
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-1.0-pro",
+        contents=prompt
+    )
+
     return response.text
 
 @app.route("/study-plan", methods=["GET", "POST"])
