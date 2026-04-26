@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from transformers import pipeline
 from datetime import datetime, timedelta
 import textwrap
+from pypdf import PdfReader
 
 app = Flask(__name__)
 
@@ -9,6 +10,15 @@ app = Flask(__name__)
 question_generator = pipeline("text2text-generation", model="valhalla/t5-base-qg-hl")
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 qa_pipeline = pipeline("question-answering", model="distilbert-base-uncased-distilled-squad")
+
+def extract_text_from_pdf(file):
+    reader = PdfReader(file)
+    text = ""
+
+    for page in reader.pages:
+        text += page.extract_text() or ""
+
+    return text
 
 # **Home Page**
 @app.route("/")
@@ -31,8 +41,20 @@ def generate_questions():
 
     for chunk in chunks:
         input_text = f"generate questions: {chunk}"
-        questions = question_generator(input_text, max_length=50, num_return_sequences=5, num_beams=5)
-        all_questions.extend(q["generated_text"] for q in questions)
+        questions = question_generator(
+            input_text,
+            max_length=50,
+            num_return_sequences=5,
+            do_sample=True,
+            top_k=50,
+            top_p=0.95
+        )
+        for q in questions:
+            question_text = q["generated_text"].strip()
+
+            # remove duplicates (case-insensitive)
+            if question_text.lower() not in [x.lower() for x in all_questions]:
+                all_questions.append(question_text)
 
     return render_template("question_generator_result.html", questions=all_questions)
 
@@ -133,6 +155,25 @@ def study_plan():
 
     study_plan_text = generate_study_plan(syllabus, topics, start_date, deadline)
     return render_template("study_plan_result.html", study_plan=study_plan_text)
+
+
+@app.route("/upload-pdf", methods=["GET", "POST"])
+def upload_pdf():
+    if request.method == "GET":
+        return render_template("upload_pdf.html")
+
+    file = request.files.get("pdf")
+
+    if not file:
+        return "No file uploaded"
+
+    text = extract_text_from_pdf(file)
+
+    # limit text size (important)
+    text = text[:2000]
+
+    return render_template("pdf_result.html", text=text)
+
 
 # **Run App**
 if __name__ == "__main__":

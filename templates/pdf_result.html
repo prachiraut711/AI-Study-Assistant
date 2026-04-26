@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Analyzer</title>
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #f4f4f9, #e2e2e9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .container {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        width: 90%;
+        max-width: 800px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    h2 {
+        text-align: center;
+        color: #2c3e50;
+    }
+
+    textarea {
+        width: 100%;
+        height: 200px;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        resize: vertical;
+        margin-top: 10px;
+        font-size: 14px;
+    }
+
+    .buttons {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    button {
+        background-color: #3498db;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background-color: #2980b9;
+        transform: scale(1.03);
+    }
+
+    .qa-box {
+        display: flex;
+        gap: 10px;
+    }
+
+    .qa-box input {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .back {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .back a {
+        text-decoration: none;
+        color: #3498db;
+        font-weight: bold;
+    }
+
+    .back a:hover {
+        color: #2980b9;
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0; transform: translateY(10px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h2>📄 Extracted PDF Text</h2>
+
+    <textarea readonly>{{ text }}</textarea>
+
+    <div class="buttons">
+
+        <!-- Summarizer -->
+        <form action="/summarizer" method="POST">
+            <input type="hidden" name="user_text" value="{{ text }}">
+            <button type="submit">📌 Summarize Text</button>
+        </form>
+
+        <!-- Question Generator -->
+        <form action="/question-generator" method="POST">
+            <input type="hidden" name="paragraph" value="{{ text }}">
+            <button type="submit">❓ Generate Questions</button>
+        </form>
+
+        <!-- QA -->
+        <form action="/answer-question" method="POST">
+            <input type="hidden" name="context" value="{{ text }}">
+            <div class="qa-box">
+                <input type="text" name="question" placeholder="Ask something from PDF..." required>
+                <button type="submit">Ask</button>
+            </div>
+        </form>
+
+    </div>
+
+    <div class="back">
+        <a href="/">← Back to Home</a>
+    </div>
+</div>
+
+</body>
+</html>

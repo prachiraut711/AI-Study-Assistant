@@ -31,8 +31,27 @@
         /* Tool Grid */
         .tool-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(6, 1fr); /* more control */
             gap: 20px;
+        }
+
+        /* Top row (3 cards) */
+        .tool-grid .tool-box:nth-child(1) {
+            grid-column: 1 / 3;
+        }
+        .tool-grid .tool-box:nth-child(2) {
+            grid-column: 3 / 5;
+        }
+        .tool-grid .tool-box:nth-child(3) {
+            grid-column: 5 / 7;
+        }
+
+        /* Bottom row (centered 2 cards) */
+        .tool-grid .tool-box:nth-child(4) {
+            grid-column: 2 / 4;
+        }
+        .tool-grid .tool-box:nth-child(5) {
+            grid-column: 4 / 6;
         }
 
         .tool-box {
@@ -134,6 +153,11 @@
                 <h2>Study Plan Generator</h2>
                 <p>Create a personalized study plan tailored to your goals and schedule.</p>
                 <a href="/study-plan">Get Started</a>
+            </div>
+            <div class="tool-box">
+                <h2>PDF Analyzer</h2>
+                <p>Upload a PDF and extract text to summarize or generate questions.</p>
+                <a href="/upload-pdf">Get Started</a>
             </div>
         </div>
         <!-- Footer with Created by -->
