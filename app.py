@@ -1,12 +1,7 @@
 from flask import Flask, render_template, request
 from transformers import pipeline
-from config import GEMINI_API_KEY
-from google import genai
+from datetime import datetime, timedelta
 import textwrap
-
-client = genai.Client(api_key=GEMINI_API_KEY)
-
-
 
 app = Flask(__name__)
 
@@ -72,26 +67,56 @@ def answer_question():
         return render_template("qa.html", error="Please provide both context and question.")
 
     result = qa_pipeline(question=question, context=context)
+
     answer = result["answer"]
+    score = result["score"]
 
-    return render_template("qa_result.html", answer=answer)
+    if score < 0.2:
+        answer = "❌ This question is not related to the provided context."
 
+    return render_template("qa_result.html", answer=answer, context=context)
 
 
 # **Study Plan Generator Page**
 def generate_study_plan(syllabus, topics, start_date, deadline):
-    prompt = f"""
-    Create a study plan from {start_date} to {deadline}.
-    Syllabus: {syllabus}
-    Topics: {topics}
-    """
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.strptime(deadline, "%Y-%m-%d")
 
-    response = client.models.generate_content(
-        model="gemini-1.0-pro",
-        contents=prompt
-    )
+    topics_list = [t.strip() for t in topics.split(",")]
+    total_days = (end - start).days + 1
 
-    return response.text
+    plan = f"📅 Study Plan from {start_date} to {deadline}\n\n"
+
+    day = start
+    topic_index = 0
+
+    for i in range(total_days):
+        plan += f"{day.strftime('%d %b %Y')}:\n"
+
+        # Assign topic
+        if topic_index < len(topics_list):
+            topic = topics_list[topic_index]
+            plan += f"📘 Topic: {topic}\n"
+            topic_index += 1
+        else:
+            plan += "📘 Revision Day\n"
+
+        # Add smart tasks
+        plan += "⏱️ 2 hrs Concept Learning\n"
+        plan += "📝 1 hr Practice Questions\n"
+        plan += "🔁 30 min Revision of previous topics\n"
+
+        # Add variation
+        if i % 3 == 0:
+            plan += "💡 Solve 5 extra problems\n"
+
+        if i == total_days - 1:
+            plan += "🎯 Full Mock Test + Final Revision\n"
+
+        plan += "\n"
+        day += timedelta(days=1)
+
+    return plan
 
 @app.route("/study-plan", methods=["GET", "POST"])
 def study_plan():

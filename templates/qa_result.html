@@ -89,7 +89,14 @@
         <p>{{ answer }}</p>
         <!-- Buttons Container -->
         <div class="buttons-container">
-            <a href="/answer-question" class="back-button">← Generate More Questions</a>
+            <form method="POST" action="/answer-question" style="display:flex; gap:10px;">
+                <input type="hidden" name="context" value="{{ context }}">
+                
+                <input type="text" name="question" placeholder="Ask another question" required>
+                
+                <button type="submit" class="back-button">Ask Again</button>
+            </form>
+            
             <a href="/" class="home-button">Back to Home</a>
         </div>
     </div>
