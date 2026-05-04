@@ -2,6 +2,10 @@
 
 An AI-powered web application that helps students improve their learning experience by generating questions, summarizing text, answering questions, creating study plans, and analyzing PDF documents.
 
+## 🎥 Project Demo
+
+👉 Watch the full demo here: https://www.youtube.com/watch?v=-uj29NWAwMA
+
 ---
 
 ## 🚀 Features
